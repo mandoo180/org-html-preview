@@ -1,0 +1,26 @@
+# Compiled Emacs Lisp
+*.elc
+
+# Emacs temp files
+*~
+\#*\#
+.\#*
+
+# Auto-generated files
+auto-save-list
+tramp
+
+# Cask
+.cask/
+dist/
+
+# Package management
+*.tar
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Temporary preview files
+/preview-temp/
+*.html.tmp

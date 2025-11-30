@@ -1,0 +1,118 @@
+#+TITLE: org-html-preview Test Document
+#+AUTHOR: Test User
+#+DATE: 2024
+
+* Introduction
+
+This is a test document for =org-html-preview=. Edit this file and save to see live updates in your browser!
+
+** Features to Test
+
+- [X] Basic text rendering
+- [X] Lists and checkboxes
+- [X] Code blocks
+- [X] Tables
+- [X] Links and images
+
+* Code Examples
+
+** Inline Code
+
+Use =inline code= with single equals signs or ~verbatim~ with tildes.
+
+** Code Blocks
+
+*** Emacs Lisp
+
+#+begin_src emacs-lisp
+(defun hello-world ()
+  "Print a greeting message."
+  (interactive)
+  (message "Hello, World!"))
+#+end_src
+
+*** Python
+
+#+begin_src python
+def fibonacci(n):
+    """Generate Fibonacci sequence up to n."""
+    a, b = 0, 1
+    while a < n:
+        yield a
+        a, b = b, a + b
+
+for num in fibonacci(100):
+    print(num)
+#+end_src
+
+*** JavaScript
+
+#+begin_src javascript
+const greet = (name) => {
+  console.log(`Hello, ${name}!`);
+};
+
+greet('org-html-preview');
+#+end_src
+
+* Tables
+
+| Feature        | Status | Notes                    |
+|----------------+--------+--------------------------|
+| HTTP Server    | Done   | Uses simple-httpd        |
+| WebSocket      | Done   | Instant reload           |
+| GFM Styling    | Done   | github-markdown-css      |
+| Multiple Files | Done   | Shared server instance   |
+| Dark Mode      | Done   | Respects system settings |
+
+* Links and References
+
+- [[https://orgmode.org][Org Mode Official Site]]
+- [[https://github.com][GitHub]]
+- Internal link: [[*Introduction][Back to Introduction]]
+
+* Quotes and Formatting
+
+#+begin_quote
+The best way to predict the future is to invent it.
+-- Alan Kay
+#+end_quote
+
+*Bold text*, /italic text/, _underlined text_, +strikethrough+.
+
+* Math (if supported)
+
+Inline math: $E = mc^2$
+
+Block math:
+
+\begin{equation}
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+\end{equation}
+
+* Nested Lists
+
+1. First item
+   - Sub-item A
+   - Sub-item B
+     - Deep nested item
+2. Second item
+   1. Numbered sub-item
+   2. Another numbered sub-item
+3. Third item
+
+* Images
+
+To test images, add a local image:
+
+#+CAPTION: A sample image
+#+ATTR_HTML: :width 300px
+[[file:test.png]]
+
+* Conclusion
+
+Try editing any section of this document and saving. The browser should refresh automatically!
+
+-----
+
+/Last updated: See your edits appear instantly!/

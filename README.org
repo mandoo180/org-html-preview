@@ -1,0 +1,155 @@
+#+TITLE: org-html-preview
+#+AUTHOR: Kyeongsoo Choi
+#+OPTIONS: toc:2
+
+Live preview Org-mode files as GitHub-styled HTML in your browser with instant refresh.
+
+* Features
+
+- *Automatic HTML export* - Exports org file to HTML on every save
+- *Instant browser refresh* - WebSocket-based live reload (no polling delay)
+- *GitHub-flavored styling* - Uses =github-markdown-css= for beautiful rendering
+- *LaTeX math support* - Renders equations with MathJax
+- *Local image support* - Automatically serves local images
+- *Smart server management* - Reuses running server, starts new one if needed
+- *Uncommon port selection* - Uses ports 9876-9925 to avoid conflicts
+- *Multiple buffer support* - Preview multiple org files simultaneously
+- *Modeline indicator* - Shows server status and port in modeline
+- *Dark mode support* - Respects system color scheme preference
+
+* Requirements
+
+- Emacs 27.1+
+- [[https://github.com/skeeto/emacs-web-server][simple-httpd]] (HTTP server)
+- [[https://github.com/ahyatt/emacs-websocket][websocket]] (WebSocket support)
+
+* Installation
+
+** Using straight.el
+
+#+begin_src emacs-lisp
+(straight-use-package
+ '(org-html-preview :type git :host github :repo "mandoo180/org-html-preview"))
+#+end_src
+
+** Using use-package with straight
+
+#+begin_src emacs-lisp
+(use-package org-html-preview
+  :straight (:type git :host github :repo "mandoo180/org-html-preview")
+  :commands (org-html-preview-mode))
+#+end_src
+
+** Manual Installation
+
+1. Clone this repository:
+   #+begin_src bash
+   git clone https://github.com/mandoo180/org-html-preview.git
+   #+end_src
+
+2. Add to your Emacs config:
+   #+begin_src emacs-lisp
+   (add-to-list 'load-path "/path/to/org-html-preview")
+   (require 'org-html-preview)
+   #+end_src
+
+3. Install dependencies:
+   #+begin_src emacs-lisp
+   (package-install 'simple-httpd)
+   (package-install 'websocket)
+   #+end_src
+
+* Usage
+
+** Basic Usage
+
+1. Open any =.org= file
+2. Run =M-x org-html-preview-mode=
+3. Browser opens automatically with live preview
+4. Edit and save - browser refreshes instantly!
+
+** Keybindings
+
+When =org-html-preview-mode= is active:
+
+| Key       | Command                  | Description              |
+|-----------+--------------------------+--------------------------|
+| =C-c C-v o= | ~org-html-preview-open~    | Open preview in browser  |
+| =C-c C-v r= | ~org-html-preview-refresh~ | Manually refresh preview |
+| =C-c C-v s= | ~org-html-preview-stop~    | Stop all preview servers |
+
+** Interactive Commands
+
+- =org-html-preview-mode= - Toggle preview mode for current buffer
+- =org-html-preview-open= - Open/reopen preview in browser
+- =org-html-preview-refresh= - Force refresh the preview
+- =org-html-preview-stop= - Stop all servers and disable preview in all buffers
+- =org-html-preview-status= - Show server status in minibuffer
+
+* Configuration
+
+#+begin_src emacs-lisp
+;; Customize port ranges (default: HTTP 9876-9900, WebSocket 9901-9925)
+(setq org-html-preview-port-range '(9876 9900))
+(setq org-html-preview-websocket-port-range '(9901 9925))
+
+;; Disable auto-open browser (default: t)
+(setq org-html-preview-auto-open-browser nil)
+
+;; Use a custom browser function
+(setq org-html-preview-browser-function #'browse-url-firefox)
+
+;; Use a custom temp directory (default: system temp dir)
+(setq org-html-preview-temp-dir "~/org-previews/")
+#+end_src
+
+* How It Works
+
+1. When you enable =org-html-preview-mode=:
+   - HTTP server starts serving temp directory (if not already running)
+   - WebSocket server starts for live reload communication
+   - Current org file is exported to HTML with embedded WebSocket client
+   - Browser opens the preview URL
+
+2. When you save the org file:
+   - Org content is re-exported to HTML
+   - WebSocket message triggers browser reload
+   - Preview updates instantly
+
+3. When you disable the mode:
+   - Buffer is unregistered from tracking
+   - Temp HTML file is cleaned up
+   - Servers stop when no buffers are being tracked
+
+* Modeline Indicator
+
+The modeline shows the preview status:
+- =Preview[off]= - Server not running
+- =Preview[:9876]= - Server running on port 9876
+
+* Multiple Buffer Support
+
+You can preview multiple org files simultaneously:
+- Each buffer gets its own HTML file
+- All share the same server instance
+- Each browser tab receives reload notifications
+- Server stops only when all preview buffers are closed
+
+* Troubleshooting
+
+** Browser doesn't refresh automatically
+- Check if WebSocket is connected (status indicator in bottom-right of preview)
+- Try =M-x org-html-preview-refresh= to manually refresh
+- Check =*Messages*= buffer for errors
+
+** Port conflicts
+- Adjust port ranges in configuration
+- Check =M-x org-html-preview-status= to see current ports
+
+** Preview doesn't look right
+- Ensure you have internet connection (CSS/JS loaded from CDN)
+- Try hard refresh in browser (Cmd/Ctrl + Shift + R)
+
+* License
+
+GPL-3.0 - see [[file:LICENSE][LICENSE]] file.
