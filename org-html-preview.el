@@ -74,9 +74,14 @@ The server will try ports in this range until it finds an available one."
   :type 'boolean
   :group 'org-html-preview)
 
-(defcustom org-html-preview-browser-function #'browse-url
-  "Function used to open the preview in browser."
-  :type 'function
+(defcustom org-html-preview-browser-function nil
+  "Function used to open the preview in browser.
+If nil, automatically selects the appropriate function based on the OS:
+- macOS: `browse-url-default-macosx-browser'
+- Linux/BSD: `browse-url-xdg-open'
+- Other: `browse-url'"
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (function :tag "Custom function"))
   :group 'org-html-preview)
 
 (defcustom org-html-preview-temp-dir nil
@@ -325,7 +330,10 @@ Returns an alist of (original-path . new-filename) for path rewriting."
             (org-html-preamble nil)
             (org-html-postamble nil)
             ;; Use MathJax for LaTeX rendering
-            (org-html-with-latex 'mathjax))
+            (org-html-with-latex 'mathjax)
+            ;; Disable source block fontification to avoid htmlize.el dependency
+            ;; Setting to nil prevents the "htmlize.el >= 1.34 required" warning
+            (org-html-htmlize-output-type nil))
         (setq org-html-content
               (org-export-as 'html nil nil t '(:body-only t))))
       ;; Rewrite image paths in the HTML content
@@ -360,6 +368,20 @@ Returns an alist of (original-path . new-filename) for path rewriting."
 
 ;;; Browser Integration
 
+(defun org-html-preview--open-url (url)
+  "Open URL in the default browser.
+Uses the appropriate method based on the operating system."
+  (cond
+   ((eq system-type 'darwin)
+    (start-process "org-html-preview-browser" nil "open" url))
+   ((or (eq system-type 'gnu/linux)
+        (eq system-type 'berkeley-unix))
+    (start-process "org-html-preview-browser" nil "xdg-open" url))
+   ((eq system-type 'windows-nt)
+    (start-process "org-html-preview-browser" nil "cmd" "/c" "start" "" url))
+   (t
+    (browse-url url))))
+
 (defun org-html-preview--get-preview-url ()
   "Get the preview URL for current buffer."
   (when (and org-html-preview--http-port
@@ -376,7 +398,9 @@ Returns an alist of (original-path . new-filename) for path rewriting."
   (if (and org-html-preview--server-running
            (buffer-file-name))
       (let ((url (org-html-preview--get-preview-url)))
-        (funcall org-html-preview-browser-function url)
+        (if org-html-preview-browser-function
+            (funcall org-html-preview-browser-function url)
+          (org-html-preview--open-url url))
         (message "org-html-preview: Opening %s" url))
     (if (not org-html-preview--server-running)
         (message "org-html-preview: Server not running. Enable org-html-preview-mode first.")
@@ -458,7 +482,11 @@ file to HTML and refresh any connected browsers via WebSocket.
   (org-html-preview--export-to-html)
   ;; Auto-open browser if configured
   (when org-html-preview-auto-open-browser
-    (run-at-time 0.5 nil #'org-html-preview-open))
+    (let ((buf (current-buffer)))
+      (run-at-time 0.5 nil
+                   (lambda ()
+                     (with-current-buffer buf
+                       (org-html-preview-open))))))
   (message "org-html-preview: Preview mode enabled (HTTP: %d, WS: %d)"
            org-html-preview--http-port
            org-html-preview--ws-port))
