@@ -333,7 +333,9 @@ Returns an alist of (original-path . new-filename) for path rewriting."
             (org-html-with-latex 'mathjax)
             ;; Disable source block fontification to avoid htmlize.el dependency
             ;; Setting to nil prevents the "htmlize.el >= 1.34 required" warning
-            (org-html-htmlize-output-type nil))
+            (org-html-htmlize-output-type nil)
+            ;; Ignore broken links gracefully
+            (org-export-with-broken-links 'mark))
         (setq org-html-content
               (org-export-as 'html nil nil t '(:body-only t))))
       ;; Rewrite image paths in the HTML content
